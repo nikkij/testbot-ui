@@ -9,7 +9,7 @@ const NavBar = () => {
               <AppBar position="static">
                 <Toolbar>
                   <Typography variant="title" color="inherit">
-                    Scythe > Testbot
+                    Testbot
                   </Typography>
                 </Toolbar>
               </AppBar>

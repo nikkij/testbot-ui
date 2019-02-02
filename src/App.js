@@ -113,11 +113,14 @@ class App extends Component {
               </Typography>
               <StatusCard></StatusCard>
               <br />
-              <Divider />
+              <br />
               <br />
               <Typography variant="h5" gutterBottom component="h3">
                 Run History
               </Typography>
+              <SimpleLineChart />
+              <br />
+              <br />
               <SimpleTable />
             </div>
             </div>

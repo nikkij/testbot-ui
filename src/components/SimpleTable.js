@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Table from '@material-ui/core/Table';
@@ -7,6 +7,7 @@ import TableCell from '@material-ui/core/TableCell';
 import TableHead from '@material-ui/core/TableHead';
 import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
+import { renderByOrder } from 'recharts/lib/util/ReactUtils';
 
 const styles = {
   root: {
@@ -17,23 +18,28 @@ const styles = {
     minWidth: 700,
   },
 };
+ 
+class SimpleTable extends Component {
 
-let id = 0;
-function createData(runid, status, duration, submitter, artifacts) {
-  id += 1;
-  return { id, runid, status, duration, submitter, artifacts };
-}
+  constructor(props) {
+    super(props);
+    
+    this.state = {
+      classes: props,
+      data: [],
+    };
+  }
 
-const data = [
-  createData('astrotest:34bh3', 'Success', '2.5 hours', 'astrotest', 'artifacts'),
-  createData('astrotest:skdj8', 'Failed', '12 minutes', 'astrotest', 'artifacts'),
-  createData('vizpath:34ngdk', 'Success', '3.15 hours', 'vizpath', 'artifacts'),
-  createData('cupcake:1286z', 'Success', '2.8 hours', 'cupcake', 'artofacts'),
-  createData('robot1:8445n', 'Success', '3.1 hours', 'robot1', 'artifacts'),
-];
+  componentDidMount() {
+    console.log("Remote API is pointed to: ", process.env.REACT_APP_TESTBOT_URL);
+    fetch(process.env.REACT_APP_TESTBOT_URL+'/runs/?format=json')
+      .then(response => response.json())
+      .then(data => this.setState({ data }))
+  }
 
-function SimpleTable(props) {
-  const { classes } = props;
+  render() {
+
+  const { classes } = this.state.classes;
 
   return (
     <Paper className={classes.root}>
@@ -45,17 +51,19 @@ function SimpleTable(props) {
             <TableCell align="right">Duration</TableCell>
             <TableCell align="right">Submitter</TableCell>
             <TableCell align="right">Artifacts</TableCell>
+            <TableCell align="right">Metrics</TableCell>
           </TableRow>
         </TableHead>
         <TableBody>
-          {data.map(n => (
+          {this.state.data.map(n => (
             <TableRow key={n.id}>
               <TableCell component="th" scope="row">
-                {n.runid}
+                <a href="">{n.label}</a>
               </TableCell>
               <TableCell align="right">{n.status}</TableCell>
               <TableCell align="right">{n.duration}</TableCell>
               <TableCell align="right">{n.submitter}</TableCell>
+              <TableCell align="right">{n.metrics}</TableCell>
               <TableCell align="right">{n.artifacts}</TableCell>
             </TableRow>
           ))}
@@ -63,6 +71,7 @@ function SimpleTable(props) {
       </Table>
     </Paper>
   );
+  }
 }
 
 SimpleTable.propTypes = {

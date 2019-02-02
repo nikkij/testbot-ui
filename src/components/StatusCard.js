@@ -11,11 +11,13 @@ import ListItem from '@material-ui/core/ListItem';
 import ListItemIcon from '@material-ui/core/ListItemIcon';
 import ListItemText from '@material-ui/core/ListItemText';
 import Divider from '@material-ui/core/Divider';
+import Grid from '@material-ui/core/Grid';
 import red from '@material-ui/core/colors/red';
 
-const styles = {
+const styles = theme => ({
     card: {
         display: 'flex',
+        borderColor: 'red',
     },
     details: {
         display: 'flex',
@@ -26,25 +28,55 @@ const styles = {
     },
     title: {
         color: 'red',
+    },
+    button: {
+        margin: theme.spacing.unit,
     }
-};
+});
 
 const StatusCard = (props) => {
     const { classes } = props;
     return(
-            <Card className={classes.card}>
-            <CardContent>
-              <div className={classes.details}>
-                <Typography variant="h6" className={classes.title} gutterBottom>
-                  Failed
-                </Typography>
-                <List>
+            <Card borderLeft={1} className={classes.card}>
+        <CardContent className={classes.content}>
+        <div className={classes.details}>
+        <Typography variant="h5" className={classes.title} gutterBottom>
+            Failed&nbsp;&nbsp;
+            <Button variant="contained" className={classes.button} color="primary">
+              Rerun
+            </Button>
+        </Typography>
+            <Grid container spacing={16}>
+          <Grid md container>
+          <List>
+            <ListItem>4/5 Passing, 1 Failure</ListItem>
+            <ListItem>2/10 In Variance, 8 Out of Variance</ListItem>
+            <ListItem><a href="">Metrics</a>&nbsp;|&nbsp;Config</ListItem>
+          </List>    
+          </Grid>
+          <Grid md container>
+          <List>
                   <ListItem>Started: Aug 2, 2018 at 06:44pm</ListItem>
                   <ListItem>Ended: Aug 2, 2018 at 6:02pm</ListItem>
                   <ListItem>Duration: 11:18:00</ListItem>
-                </List>
-              </div>
-            </CardContent>
+          </List>
+            </Grid>
+            <Grid md container>
+            <List>
+            <ListItem>Triggered by&nbsp;<a href="">slackbot</a></ListItem>
+              <ListItem>Previous</ListItem>
+              <ListItem>Diff</ListItem>
+            </List>
+            </Grid>
+            <Grid md container>
+            <List>
+            <ListItem><a href="">Visual Artifacts</a></ListItem>
+            <ListItem><a href="">Logs</a></ListItem>
+            </List>
+            </Grid>
+          </Grid>
+          </div>
+          </CardContent>
         </Card>
     )
 }
