@@ -8,6 +8,7 @@ import Typography from '@material-ui/core/Typography';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
 import Grid from '@material-ui/core/Grid';
+import {createRun} from '../Actions';
 
 const capitalize = require('capitalize');
 const moment = require('moment');
@@ -50,44 +51,9 @@ class StatusCard extends Component {
     }
 
     componentDidMount() {
-        fetch(process.env.REACT_APP_TESTBOT_URL+'/runs/latest?format=json')
+        fetch(process.env.REACT_APP_TESTBOT_URL+'/runs/latest/?format=json')
           .then(response => response.json())
-          .then(data => this.setState({ data }))
-    }
-
-    createRun() {
-        console.log("Creating run ...");
-        fetch(process.env.REACT_APP_TESTBOT_URL+'/runs/?format=json',{
-            method:'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(
-                {
-                    "label": "fakebot:",
-                    "status": "success",
-                    "duration": 123,
-                    "submitter": "script",
-                    "start": moment().format(),
-                    "end": moment().add(3, 'hours').format(),
-                    "test_set": [],
-                }
-            )
-        })
-          .then(response => response.json())
-    }
-
-    statusColor(status) {
-      if(status === "success") {
-        return "statusGreen";
-      } else { return "statusRed"; }
-    }
-
-    duration(start, end) {
-      let startMoment = moment(start);
-      let endMoment = moment(end);
-      let duration = moment.duration(endMoment.diff(startMoment));
-      return duration.asHours();
+          .then(data => {let first=data[0];this.setState({ data:first })})
     }
 
     render() {
@@ -103,7 +69,7 @@ class StatusCard extends Component {
                         <Button variant="contained" 
                                 className={classes.button} 
                                 color="primary"
-                                onClick={this.createRun}>
+                                onClick={createRun}>
                         Rerun
                         </Button>
                     </Typography>
@@ -111,7 +77,7 @@ class StatusCard extends Component {
                         <Grid item md container>
                             <List>
                                 <ListItem>Run # {this.state.data.id}</ListItem>
-                                <ListItem>4/5 Passing, 1 Failure</ListItem>
+                                <ListItem>{this.state.data.successes}/{this.state.data.total_tests_run} Passing, {this.state.data.failures} Failure</ListItem>
                                 <ListItem>2/10 In Variance, 8 Out of Variance</ListItem>
                             </List>    
                         </Grid>
@@ -141,6 +107,19 @@ class StatusCard extends Component {
                 </CardContent>
             </Card>
         )
+    }
+
+    statusColor(status) {
+        if(status === "success") {
+            return "statusGreen"; } 
+        else { return "statusRed"; }
+    }
+  
+    duration(start, end) {
+        let startMoment = moment(start);
+        let endMoment = moment(end);
+        let duration = moment.duration(endMoment.diff(startMoment));
+        return duration.asHours();
     }
 }
 
