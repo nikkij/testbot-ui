@@ -9,6 +9,8 @@ import TableRow from '@material-ui/core/TableRow';
 import Paper from '@material-ui/core/Paper';
 import { renderByOrder } from 'recharts/lib/util/ReactUtils';
 
+const moment = require('moment');
+
 const styles = {
   root: {
     width: '100%',
@@ -31,7 +33,6 @@ class SimpleTable extends Component {
   }
 
   componentDidMount() {
-    console.log("Remote API is pointed to: ", process.env.REACT_APP_TESTBOT_URL);
     fetch(process.env.REACT_APP_TESTBOT_URL+'/runs/?format=json')
       .then(response => response.json())
       .then(data => this.setState({ data }))

@@ -1,19 +1,16 @@
-import React from 'react';
+import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import { withStyles } from '@material-ui/core/styles';
 import Card from '@material-ui/core/Card';
-import CardActions from '@material-ui/core/CardActions';
 import CardContent from '@material-ui/core/CardContent';
 import Button from '@material-ui/core/Button';
 import Typography from '@material-ui/core/Typography';
 import List from '@material-ui/core/List';
 import ListItem from '@material-ui/core/ListItem';
-import ListItemIcon from '@material-ui/core/ListItemIcon';
-import ListItemText from '@material-ui/core/ListItemText';
-import Divider from '@material-ui/core/Divider';
 import Grid from '@material-ui/core/Grid';
-import red from '@material-ui/core/colors/red';
 
+const capitalize = require('capitalize');
+const moment = require('moment');
 const styles = theme => ({
     card: {
         display: 'flex',
@@ -29,56 +26,122 @@ const styles = theme => ({
     title: {
         color: 'red',
     },
+    statusGreen: {
+        color: 'green',
+    },
+    statusRed: {
+        color: 'red',
+    },
     button: {
         margin: theme.spacing.unit,
     }
 });
 
-const StatusCard = (props) => {
-    const { classes } = props;
-    return(
-            <Card borderLeft={1} className={classes.card}>
-        <CardContent className={classes.content}>
-        <div className={classes.details}>
-        <Typography variant="h5" className={classes.title} gutterBottom>
-            Failed&nbsp;&nbsp;
-            <Button variant="contained" className={classes.button} color="primary">
-              Rerun
-            </Button>
-        </Typography>
-            <Grid container spacing={16}>
-          <Grid md container>
-          <List>
-            <ListItem>4/5 Passing, 1 Failure</ListItem>
-            <ListItem>2/10 In Variance, 8 Out of Variance</ListItem>
-            <ListItem><a href="">Metrics</a>&nbsp;|&nbsp;Config</ListItem>
-          </List>    
-          </Grid>
-          <Grid md container>
-          <List>
-                  <ListItem>Started: Aug 2, 2018 at 06:44pm</ListItem>
-                  <ListItem>Ended: Aug 2, 2018 at 6:02pm</ListItem>
-                  <ListItem>Duration: 11:18:00</ListItem>
-          </List>
-            </Grid>
-            <Grid md container>
-            <List>
-            <ListItem>Triggered by&nbsp;<a href="">slackbot</a></ListItem>
-              <ListItem>Previous</ListItem>
-              <ListItem>Diff</ListItem>
-            </List>
-            </Grid>
-            <Grid md container>
-            <List>
-            <ListItem><a href="">Visual Artifacts</a></ListItem>
-            <ListItem><a href="">Logs</a></ListItem>
-            </List>
-            </Grid>
-          </Grid>
-          </div>
-          </CardContent>
-        </Card>
-    )
+class StatusCard extends Component {
+    constructor(props) {
+        super(props);
+        
+        this.state = {
+          classes: props,
+          data: {
+              status: "",
+          },
+        };
+    }
+
+    componentDidMount() {
+        fetch(process.env.REACT_APP_TESTBOT_URL+'/runs/latest?format=json')
+          .then(response => response.json())
+          .then(data => this.setState({ data }))
+    }
+
+    createRun() {
+        console.log("Creating run ...");
+        fetch(process.env.REACT_APP_TESTBOT_URL+'/runs/?format=json',{
+            method:'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(
+                {
+                    "label": "fakebot:",
+                    "status": "success",
+                    "duration": 123,
+                    "submitter": "script",
+                    "start": moment().format(),
+                    "end": moment().add(3, 'hours').format(),
+                    "test_set": [],
+                }
+            )
+        })
+          .then(response => response.json())
+    }
+
+    statusColor(status) {
+      if(status === "success") {
+        return "statusGreen";
+      } else { return "statusRed"; }
+    }
+
+    duration(start, end) {
+      let startMoment = moment(start);
+      let endMoment = moment(end);
+      let duration = moment.duration(endMoment.diff(startMoment));
+      return duration.asHours();
+    }
+
+    render() {
+
+        const { classes } = this.state.classes;
+
+        return(
+            <Card className={classes.card}>
+                <CardContent className={classes.content}>
+                <div className={classes.details}>
+                    <Typography variant="h5" className={classes[this.statusColor(this.state.data.status)]} gutterBottom>
+                        {capitalize(this.state.data.status)}&nbsp;&nbsp;
+                        <Button variant="contained" 
+                                className={classes.button} 
+                                color="primary"
+                                onClick={this.createRun}>
+                        Rerun
+                        </Button>
+                    </Typography>
+                    <Grid container spacing={16}>
+                        <Grid item md container>
+                            <List>
+                                <ListItem>Run # {this.state.data.id}</ListItem>
+                                <ListItem>4/5 Passing, 1 Failure</ListItem>
+                                <ListItem>2/10 In Variance, 8 Out of Variance</ListItem>
+                            </List>    
+                        </Grid>
+                        <Grid item md container>
+                            <List>
+                                    <ListItem>Started: {moment(this.state.data.start).format('LLL')}</ListItem>
+                                    <ListItem>Ended: {moment(this.state.data.end).format('LLL')}</ListItem>
+                                    <ListItem>Duration: {this.duration(this.state.data.start, this.state.data.end)} hours</ListItem>
+                            </List>
+                        </Grid>
+                        <Grid item md container>
+                            <List>
+                            <ListItem>Triggered by&nbsp;<a href="#">slackbot</a></ListItem>
+                            <ListItem>Previous</ListItem>
+                            <ListItem>Diff</ListItem>
+                            </List>
+                        </Grid>
+                        <Grid item md container>
+                            <List>
+                                <ListItem><a href="#">Metrics</a>&nbsp;|&nbsp;Config</ListItem>
+                                <ListItem><a href="#">Visual Artifacts</a></ListItem>
+                                <ListItem><a href="#">Logs</a></ListItem>
+                            </List>
+                        </Grid>
+                    </Grid>
+                </div>
+                </CardContent>
+            </Card>
+        )
+    }
 }
 
 StatusCard.propTypes = {
