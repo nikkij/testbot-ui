@@ -1,10 +1,10 @@
-# TestBot
+# TestBot-UI
 
 A front end for tracking and visualizing regression testing in robots.
 
 ## Getting Started
 
-These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system. An demo can be seen at: http://testbot-ui.s3-website-us-west-2.amazonaws.com/ .
+These instructions will get you a copy of the project up and running on your local machine for development and testing purposes. See deployment for notes on how to deploy the project on a live system. An demo can be seen at: http://testbot-ui.s3-website-us-west-2.amazonaws.com/ . TestBot-UI works hand in hand with TestBot, which provides an API for tracking regression testing in robots.
 
 ### Prerequisites
 
